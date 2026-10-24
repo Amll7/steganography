@@ -1,0 +1,174 @@
+#include <stdio.h>
+#include <string.h>
+#include "encode.h"
+#include "types.h"
+
+/* Function Definitions */
+
+/* Get image size
+ * Input: Image file ptr
+ * Output: width * height * bytes per pixel (3 in our case)
+ * Description: In BMP Image, width is stored in offset 18,
+ * and height after that. size is 4 bytes
+ */
+uint get_image_size_for_bmp(FILE *fptr_image)
+{
+    uint width, height;
+    // Seek to 18th byte
+    fseek(fptr_image, 18, SEEK_SET);
+
+    // Read the width (an int)
+    fread(&width, sizeof(int), 1, fptr_image);
+    printf("width = %u\n", width);
+
+    // Read the height (an int)
+    fread(&height, sizeof(int), 1, fptr_image);
+    printf("height = %u\n", height);
+
+    // Return image capacity
+    return width * height * 3;
+}
+
+/* 
+ * Get File pointers for i/p and o/p files
+ * Inputs: Src Image file, Secret file and
+ * Stego Image file
+ * Output: FILE pointer for above files
+ * Return Value: e_success or e_failure, on file errors
+ */
+Status open_files(EncodeInfo *encInfo)
+{
+    // Src Image file
+    encInfo->fptr_src_image = fopen(encInfo->src_image_fname, "r");
+    // Do Error handling
+    if (encInfo->fptr_src_image == NULL)
+    {
+    	perror("fopen");
+    	fprintf(stderr, "ERROR: Unable to open file %s\n", encInfo->src_image_fname);
+
+    	return e_failure;
+    }
+
+    // Secret file
+    encInfo->fptr_secret = fopen(encInfo->secret_fname, "r");
+    // Do Error handling
+    if (encInfo->fptr_secret == NULL)
+    {
+    	perror("fopen");
+    	fprintf(stderr, "ERROR: Unable to open file %s\n", encInfo->secret_fname);
+
+    	return e_failure;
+    }
+
+    // Stego Image file
+    encInfo->fptr_stego_image = fopen(encInfo->stego_image_fname, "w");
+    // Do Error handling
+    if (encInfo->fptr_stego_image == NULL)
+    {
+    	perror("fopen");
+    	fprintf(stderr, "ERROR: Unable to open file %s\n", encInfo->stego_image_fname);
+
+    	return e_failure;
+    }
+
+    // No failure return e_success
+    return e_success;
+}
+Status read_and_validate_encode_args(char *argv[], EncodeInfo *encInfo)
+{
+  //source file
+  encInfo->fptr_src_image=fopen(argv[2],"rb");
+  if(encInfo->fptr_src_image==NULL)
+  {
+    printf("failure no file");
+    return e_failure;
+  }
+  else
+  {
+    char *bmp=strstr(argv[2],".bmp");
+    if(bmp==NULL)
+    {
+        printf("failure no bmp");
+        return e_failure;
+    }
+    else
+    {
+        if(*(bmp+4)!='\0')
+        {
+            printf("fail no null");
+            return e_failure;
+        }
+        else
+        {
+            printf("success");
+            encInfo->src_image_fname=argv[2];
+        }
+    }
+  }
+
+
+  //secretfile
+  encInfo->fptr_secret=fopen(argv[3],"r");
+  if(encInfo->fptr_secret==NULL)
+  {
+    printf("fail");
+    return e_failure;
+  }
+  else
+  {
+    printf("sucess");
+  }
+
+//output file
+encInfo->fptr_stego_image=fopen(argv[4],"r");
+if(encInfo->fptr_stego_image==NULL)
+{
+   printf("default");
+   encInfo->stego_image_fname="default.bmp";
+   printf("%s",encInfo->stego_image_fname);
+}
+else
+{
+  encInfo->stego_image_fname=argv[4];
+  printf("sucess");
+  printf("%s",encInfo->stego_image_fname);
+}
+
+}
+Status do_encoding(EncodeInfo *encInfo)
+{
+  /*check cpacity scucess or failure
+     print failure 
+     else
+     copy_bmp_header(encinfo-.fptr_scr_image.encinfo->fptr_stego_image)
+
+  */
+}
+Status check_capacity(EncodeInfo *encInfo)
+{
+  /*
+  -> call this get_image_size_forbmp(encinfo->fptr_src_image)
+     ((get_file_size(encInfo->fptr_secre)+14)*8)
+     ==>return esuccess
+     else 
+     efailure
+
+
+  */
+}
+uint get_file_size(FILE *fptr)
+{
+  /*
+  fseek()to end
+  then ftell
+  */
+}
+Status copy_bmp_header(FILE *fptr_src_image, FILE *fptr_dest_image)
+{
+  /*
+  rewind -source image and secretfile
+  *declare a buff of 54,char buff[54]
+  read 54 bytes from src image to buff
+  write 54 bytes from  buff to destination 
+  */
+}
