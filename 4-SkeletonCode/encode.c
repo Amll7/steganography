@@ -137,38 +137,38 @@ else
 }
 Status do_encoding(EncodeInfo *encInfo)
 {
-  /*check cpacity scucess or failure
-     print failure 
-     else
-     copy_bmp_header(encinfo-.fptr_scr_image.encinfo->fptr_stego_image)
-
-  */
+  check_capacity(encInfo)
 }
 Status check_capacity(EncodeInfo *encInfo)
 {
-  /*
-  -> call this get_image_size_forbmp(encinfo->fptr_src_image)
-     ((get_file_size(encInfo->fptr_secre)+14)*8)
-     ==>return esuccess
-     else 
-     efailure
-
-
-  */
+  encInfo->size_secret_file=get_file_size(encInfo->fptr_secret);
+  if(get_image_size_for_bmp(encInfo->fptr_src_image)>((encInfo->size_secret_file+14)*8))
+  {
+    return e_success;
+  }
+  else
+  {
+    return e_failure;
+  }
 }
 uint get_file_size(FILE *fptr)
 {
-  /*
-  fseek()to end
-  then ftell
-  */
+  fseek(fptr,0,SEEK_END);
+  return ftell(fptr);
 }
+
 Status copy_bmp_header(FILE *fptr_src_image, FILE *fptr_dest_image)
 {
-  /*
-  rewind -source image and secretfile
-  *declare a buff of 54,char buff[54]
-  read 54 bytes from src image to buff
-  write 54 bytes from  buff to destination 
-  */
+  rewind(fptr_src_image);
+  char buff[54];
+  fread(buff,54,1,fptr_src_image);
+  fwrite(ch,54,1,fptr_dest_image);
+}
+Status encode_magic_string(const char *magic_string, EncodeInfo *encInfo)
+{
+  char buff[]
+}
+Status encode_byte_to_lsb(char data, char *image_buffer)
+{
+
 }
