@@ -166,9 +166,35 @@ Status copy_bmp_header(FILE *fptr_src_image, FILE *fptr_dest_image)
 }
 Status encode_magic_string(const char *magic_string, EncodeInfo *encInfo)
 {
-  char buff[]
-}
-Status encode_byte_to_lsb(char data, char *image_buffer)
-{
+  char buff[8];
+  for(int i=0;magic_string[i]!='\0';i++)
+  {
+    if(fread(buff,8,1,encInfo->fptr_src_image)!=8)
+    {
+      return e_failure;
+    }
+    encode_byte_to_lsb(magic_string[i],buff);
+    if(fwrite(buff,8,1,encInfo->fptr_stego_image)!=8)
+    {
+      return e_failure;
+    }
+  
+    return e_success;
 
+  }
+}
+Status encode_byte_to_lsb(char data,char *image_buffer)
+{
+for(int i=0;i<8;i++)
+{
+  if(data&(1<<i))
+  {
+    image_buffer[i]=image_buffer[i]|1;
+  }
+  else
+  {
+    image_buffer[i]=image_buffer[i]&(~1);
+  }
+}
+ return e_success;
 }
