@@ -11,6 +11,7 @@
  * Description: In BMP Image, width is stored in offset 18,
  * and height after that. size is 4 bytes
  */
+ 
 uint get_image_size_for_bmp(FILE *fptr_image)
 {
     uint width, height;
@@ -76,8 +77,10 @@ Status open_files(EncodeInfo *encInfo)
 }
 Status read_and_validate_encode_args(char *argv[], EncodeInfo *encInfo)
 {
+
+
   //source file
-  encInfo->fptr_src_image=fopen(argv[2],"rb");
+  encInfo->fptr_src_image=fopen(argv[2],"r");
   if(encInfo->fptr_src_image==NULL)
   {
     printf("failure no file");
@@ -107,6 +110,8 @@ Status read_and_validate_encode_args(char *argv[], EncodeInfo *encInfo)
   }
 
 
+
+
   //secretfile
   encInfo->fptr_secret=fopen(argv[3],"r");
   if(encInfo->fptr_secret==NULL)
@@ -118,6 +123,8 @@ Status read_and_validate_encode_args(char *argv[], EncodeInfo *encInfo)
   {
     printf("sucess");
   }
+
+
 
 //output file
 encInfo->fptr_stego_image=fopen(argv[4],"r");
@@ -137,8 +144,12 @@ else
 }
 Status do_encoding(EncodeInfo *encInfo)
 {
-  check_capacity(encInfo)
+  check_capacity(encInfo);
 }
+
+
+
+
 Status check_capacity(EncodeInfo *encInfo)
 {
   encInfo->size_secret_file=get_file_size(encInfo->fptr_secret);
@@ -157,13 +168,20 @@ uint get_file_size(FILE *fptr)
   return ftell(fptr);
 }
 
+
+
+
+
 Status copy_bmp_header(FILE *fptr_src_image, FILE *fptr_dest_image)
 {
   rewind(fptr_src_image);
   char buff[54];
   fread(buff,54,1,fptr_src_image);
-  fwrite(ch,54,1,fptr_dest_image);
+  fwrite(buff,54,1,fptr_dest_image);
 }
+
+
+
 Status encode_magic_string(const char *magic_string, EncodeInfo *encInfo)
 {
   char buff[8];
@@ -220,13 +238,13 @@ Status encode_secret_file_extn(const char *file_extn, EncodeInfo *encInfo)
 Status encode_secret_file_size(long file_size, EncodeInfo *encInfo)
 {
  char buff[32];
- if(fread(buff,32,1,encInfo->fptr_src_image)!=8)
+ if(fread(buff,32,1,encInfo->fptr_src_image)!=32)
  {
     return e_failure;
  }
   encode_size_to_lsb(file_size,buff);
 
-  if(fwrite(buff,32,1,encInfo->fptr_stego_image)!=8)
+  if(fwrite(buff,32,1,encInfo->fptr_stego_image)!=32)
   {
     return e_failure;
   }
@@ -234,7 +252,7 @@ Status encode_secret_file_size(long file_size, EncodeInfo *encInfo)
 
 Status encode_size_to_lsb(uint size, char *image_buffer)
 {
-for(int i=0;i<32;i++)
+for(int i=31;i>=0;i++)
 {
   if(size&(1<<i))
   {
@@ -251,13 +269,33 @@ Status encode_secret_file_data(EncodeInfo *encInfo)
 {
   char buff[8];
   int i;
+  char data;
+  rewind(encInfo->fptr_secret);
   for(i=0;i<encInfo->size_secret_file;i++)
   {
+    if(fread(buff,8,1,encInfo->fptr_src_image)!=8)
+    {
+    return e_failure;
+    }
+    data=fgetc(encInfo->fptr_secret);
+    encode_byte_to_lsb(data,buff);
+    if(fwrite(buff,8,1,encInfo->fptr_stego_image)!=8)
+    {
+      return e_failure;
+    }
     
+    return e_success;
   }
 
+}
+Status copy_remaining_img_data(FILE *fptr_src, FILE *fptr_dest)
+{
+  char ch;
+  while((ch=fgetc(fptr_src))!=EOF)
+  {
+    fprintf(fptr_dest,"%c",ch);
+  }
 
-  
 }
 
 
