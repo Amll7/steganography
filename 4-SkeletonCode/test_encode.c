@@ -8,7 +8,7 @@ int main(int argc,char **argv)
     char opt=argv[1][1];
     check_operation_type(opt);
     read_and_validate_encode_args(argv,&encInfo);
-    do_encoding(&encInfo);
+    do_encoding(argv,&encInfo);
     return 0;
 }
 OperationType check_operation_type(char opt)
