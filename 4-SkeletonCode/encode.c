@@ -398,7 +398,14 @@ Status encode_secret_file_extn(const char *file_extn, EncodeInfo *encInfo)
     return e_success;
 }
 
-
+/*encode_secret_file_extn_size
+ *we have to encode secret file extension size to the o/p image.
+ *inside func,
+ *create a buff of 32 bytes
+ *read 32 bytes from source image.
+ *encode size to lsb.
+ *write the encoded 32 bytes to the o/p image.
+*/
 
 Status encode_secret_file_extn_size(uint size, EncodeInfo *encInfo)
 {
@@ -417,7 +424,12 @@ Status encode_secret_file_extn_size(uint size, EncodeInfo *encInfo)
 }
 
 /*encode_secret_file_size
-  
+ *we have to encode secret file size to the o/p image.
+ *inside func,
+ *create a buff of 32 bytes
+ *read 32 bytes from source image.
+ *encode size to lsb.
+ *write the encoded 32 bytes to the o/p image.
 */
 Status encode_secret_file_size(long file_size, EncodeInfo *encInfo)
 {
@@ -436,6 +448,17 @@ Status encode_secret_file_size(long file_size, EncodeInfo *encInfo)
 }
 
 
+/*encode_size_to_lsb
+ *we have to encode the size of extension and file to the o/p image.
+ *both the size are in int.
+ *int=4bytes=32bits.
+ *so each bits should be encoded into each bytes of source image.
+ *inside func,
+ *run a loop for 32 times.
+ *inside that if the bit of size is set,we will set the lsb of image buffer[].
+ *else we will clear the lsb of image buffer[].
+*/
+
 
 Status encode_size_to_lsb(uint size, char *image_buffer)
 {
@@ -453,6 +476,19 @@ for(int i=31;i>=0;i--)
  return e_success;
 }
 
+
+/*encode_secret_file_data
+ *encoding secret file data to the o/p image.
+ *inside func,
+ *create a buff of 8 bytes.
+ *rewind the secret file pointer.
+ *create a char data to store each character from secret file.
+ *run a loop for size of secret file times.
+ *read 8 bytes from the source.
+ *get a character from secret file to data.
+ *send the buff and data to encode_byte_to_lsb.
+ *write the encoded buff to the o/p image.
+*/
 
 
 Status encode_secret_file_data(EncodeInfo *encInfo)
@@ -478,6 +514,17 @@ Status encode_secret_file_data(EncodeInfo *encInfo)
   return e_success;
 }
 
+
+/*copy_remaining_img_data
+ *there may be remaining bytes in the source image
+ *we have to copy it to the o/p image to complete the image.
+ *inside func,
+ *create int ch;
+ *run a loop untill the file pointer reaching EOF.
+ *get each bytes to ch.
+ *write it into the o/p image.
+ 
+*/
 
 Status copy_remaining_img_data(FILE *fptr_src, FILE *fptr_dest)
 {
