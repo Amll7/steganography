@@ -30,14 +30,7 @@ uint get_image_size_for_bmp(FILE *fptr_image)
     return width * height * 3;
 }
 
-/* 
- * 
- * 
- * 
- * 
- * 
- */
-
+//file validation in encode
 
 Status read_and_validate_encode_args(char *argv[], EncodeInfo *encInfo)
 {
@@ -90,7 +83,7 @@ Status read_and_validate_encode_args(char *argv[], EncodeInfo *encInfo)
    *print validation sucess
   */
 
-  encInfo->fptr_secret=fopen(argv[3],"r");
+  encInfo->fptr_secret=fopen(argv[3],"rb");
   if(encInfo->fptr_secret==NULL)
   {
     printf("ERROR: Unable to open secret file.\n");
@@ -128,7 +121,6 @@ if(encInfo->fptr_stego_image==NULL)
    else
    {
     printf("SUCCESS: Default output image file created successfully.\n");
-    return e_success;
    }
 }
 else
@@ -156,9 +148,23 @@ else
     }
   }
 
-}
-
-
+} 
+/* do encoding
+ * Inside the function:
+ *
+ * 1. get the extension of the secret file and store it.
+ * 2. check whether the source image has enough capacity.
+ * 3. copy the BMP header to the output image.
+ * 4. encode the magic string.
+ * 5. encode the secret file extension size.
+ * 6. encode the secret file extension.
+ * 7. encode the secret file size.
+ * 8. encode the secret file data.
+ * 9. copy the remaining image data.
+ *
+ * if any function fails, return e_failure.
+ * if everything is successful, return e_success.
+ */
 Status do_encoding(char *argv[],EncodeInfo *encInfo)
 {
   char *dot=strstr(argv[3],".");
@@ -203,7 +209,8 @@ Status do_encoding(char *argv[],EncodeInfo *encInfo)
   {
     return e_failure;
   }
-  printf("done\n");
+  printf("INFO: Encoding completed successfully.\n");
+  return e_success;
 }
 
 
@@ -420,6 +427,7 @@ Status encode_secret_file_extn_size(uint size, EncodeInfo *encInfo)
   {
     return e_failure;
   }
+  printf("INFO: Secret file extension size encoded successfully.\n");
   return e_success;
 }
 
@@ -444,6 +452,7 @@ Status encode_secret_file_size(long file_size, EncodeInfo *encInfo)
   {
     return e_failure;
   }
+  printf("INFO: Secret file size encoded successfully.\n");
   return e_success;
 }
 
@@ -473,6 +482,7 @@ for(int i=31;i>=0;i--)
     image_buffer[i]=image_buffer[i]&(~1);
   }
 }
+
  return e_success;
 }
 
@@ -511,6 +521,7 @@ Status encode_secret_file_data(EncodeInfo *encInfo)
     }
     
   }
+  printf("INFO: Secret file data encoded successfully.\n");
   return e_success;
 }
 
@@ -537,7 +548,7 @@ Status copy_remaining_img_data(FILE *fptr_src, FILE *fptr_dest)
             return e_failure;
         }
     }
-
+    printf("INFO: Remaining image data copied successfully.\n");
     return e_success;
 }
 
